@@ -23,7 +23,7 @@ menu = ["Select examole job text file from the below list", "Upload From Compute
 choice = st.sidebar.radio(label="Menu", options=["Select .txt file from the below list", "choose your own .txt file"])
 #
 if choice == "Select .txt file from the below list":
-    file = st.sidebar.selectbox("Upload your .txt file", os.listdir("clean/example"))
+    file = st.sidebar.selectbox("Upload your .txt file", os.listdir("example"))
     uploaded_file = os.path.join(os.getcwd(), "clean/example", file)
 else:
     uploaded_file = st.sidebar.file_uploader("Please upload a .txt file:", type=['txt'])
