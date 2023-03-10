@@ -6,12 +6,12 @@ import numpy as np
 import seaborn as sns
 
 
-model = "jjzha/jobbert-base-cased"
-thresh = 0.70
+# model = "jjzha/jobbert-base-cased"
+# thresh = 0.70
 
-# model = "jjzha/jobspanbert-base-cased"
-# thresh = 0.55
-top_n = 10
+# # model = "jjzha/jobspanbert-base-cased"
+# # thresh = 0.55
+# top_n = 10
 
 st.set_page_config(layout="wide")
 st.title("Skills and Activities Extraction")
@@ -20,16 +20,26 @@ st.markdown("### 🎲 Matching Application")
 st.markdown("""The Job description in text format is read sentence by sentence and converted into vector (Job embeding).
                Then the job embeding is matched with the skill embedings(vectors) from the database to give the best matched skills for each sentence. """)
 menu = ["Select examole job text file from the below list", "Upload From Computer"]
+
+model = st.sidebar.selectbox("Select the model", ('JobBert', 'JobspanBert'))
+
+if model == "JobBert":
+   model = "jjzha/jobbert-base-cased"
+   thresh = 0.550
+else:
+   model = "jjzha/jobspanbert-base-cased"
+   thresh = 0.55
+
 choice = st.sidebar.radio(label="Menu", options=["Select .txt file from the below list", "choose your own .txt file"])
-#
+
 if choice == "Select .txt file from the below list":
-    file = st.sidebar.selectbox("Upload your .txt file", os.listdir("example"))
+    file = st.sidebar.selectbox("Upload your .txt file", os.listdir("clean/example"))
     uploaded_file = os.path.join(os.getcwd(), "clean/example", file)
 else:
     uploaded_file = st.sidebar.file_uploader("Please upload a .txt file:", type=['txt'])
 
 
-skills_df = pd.read_csv('skillgroups_df.csv').fillna('')
+skills_df = pd.read_csv('clean/skillgroups_df.csv').fillna('')
 skills_df = skills_df[skills_df['Level 0 preferred term'] == 'skills']
 sk = skills_df.loc[:,~skills_df.columns.str.contains('Uri',case=False, regex=True)]
 
@@ -80,13 +90,15 @@ sk_indexed = sk.set_index(['Level 3 code']).sort_index(ascending=True)
 mapped = []
 match_score = []
 for key, value in sorted_match.items():
-  code_ls = [pd.concat([sk_indexed.loc[[i for i in list(value.keys())]][['Level 1 preferred term', 'Level 2 preferred term', 'Level 3 preferred term']]]).head(10)]
+  code_ls = [pd.concat([sk_indexed.loc[[i for i in list(value.keys())]][['Level 1 preferred term', 
+                                                                         'Level 2 preferred term',
+                                                                         'Level 3 preferred term']]]).head(5)]
   scores = list(value.values())
   if len(scores) != 0:
     match_score.append(scores)
   else:
     match_score.append("")
-  code_ls[0]['Match_Score'] = scores[:10]
+  code_ls[0]['Match_Score'] = scores[:5]
   # print(match_score)
   mapped.append(code_ls[0])
   # print(code_ls)
@@ -119,9 +131,4 @@ if uploaded_file is not None:
          st.write(f'<p style="font-size:26px; color:red;">{job[sent]}</p>',
                    " \n No skills Detected \n",
                    unsafe_allow_html=True)
-    # st.write("**Probability:**", f'{round(pred_score*100)}%')
-    # expander = st.expander("Skills Required!!")
-    # st.dataframe(result.style.highlight_max(axis=0))
-    # expander.write(result)
-
-
+  
