@@ -33,13 +33,13 @@ else:
 choice = st.sidebar.radio(label="Menu", options=["Select .txt file from the below list", "choose your own .txt file"])
 
 if choice == "Select .txt file from the below list":
-    file = st.sidebar.selectbox("Upload your .txt file", os.listdir("clean/example"))
-    uploaded_file = os.path.join(os.getcwd(), "clean/example", file)
+    file = st.sidebar.selectbox("Upload your .txt file", os.listdir("example"))
+    uploaded_file = os.path.join(os.getcwd(), "example", file)
 else:
     uploaded_file = st.sidebar.file_uploader("Please upload a .txt file:", type=['txt'])
 
 
-skills_df = pd.read_csv('clean/skillgroups_df.csv').fillna('')
+skills_df = pd.read_csv('skillgroups_df.csv').fillna('')
 skills_df = skills_df[skills_df['Level 0 preferred term'] == 'skills']
 sk = skills_df.loc[:,~skills_df.columns.str.contains('Uri',case=False, regex=True)]
 
